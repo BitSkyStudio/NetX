@@ -3,16 +3,15 @@ package com.github.industrialcraft.netx;
 import com.github.industrialcraft.netx.timeout.PingMessageEncoder;
 import com.github.industrialcraft.netx.timeout.TimeOutHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NetXClient extends Thread{
     String host;
@@ -21,15 +20,16 @@ public class NetXClient extends Thread{
     int writeTimeout;
     int maxLength;
     MessageRegistry registry;
-    NetXClient.ChannelInit channelInit;
-    public NetXClient(String host, int port, MessageRegistry registry, NetXClient.ChannelInit channelInit) {
+    Channel clientChannel;
+    ConcurrentLinkedQueue<ClientMessage> messageQueue;
+    public NetXClient(String host, int port, MessageRegistry registry) {
         this.host = host;
         this.port = port;
         this.readTimeout = 30;
         this.writeTimeout = 5;
         this.maxLength = Integer.MAX_VALUE;
         this.registry = registry;
-        this.channelInit = channelInit;
+        this.messageQueue = new ConcurrentLinkedQueue<>();
     }
     public void setTimout(int readTimeout, int writeTimeout){
         this.readTimeout = readTimeout;
@@ -40,6 +40,8 @@ public class NetXClient extends Thread{
     }
     @Override
     public void run() {
+        NetXClient client = this;
+
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -55,14 +57,13 @@ public class NetXClient extends Thread{
                     ch.pipeline().addLast(new PingMessageEncoder());
                     ch.pipeline().addLast(new TimeOutHandler());
                     ch.pipeline().addLast(new MessageEncoder(registry));
-                    if(channelInit != null)
-                        channelInit.onChannelInit(ch);
+                    ch.pipeline().addLast(new ClientProcessor(client));
                 }
             });
 
+
             // Start the client.
             ChannelFuture f = b.connect(host, port).sync();
-
             // Wait until the connection is closed.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -71,8 +72,30 @@ public class NetXClient extends Thread{
             workerGroup.shutdownGracefully();
         }
     }
-
-    public interface ChannelInit{
-        void onChannelInit(SocketChannel channel);
+    void addToMessageQueue(ClientMessage msg){
+        messageQueue.add(msg);
+    }
+    public ClientMessage pollMessage(){
+        return messageQueue.poll();
+    }
+    public void visitMessage(ClientMessage.Visitor visitor){
+        ClientMessage message = pollMessage();
+        if(message != null)
+            message.visit(visitor);
+    }
+    void setClientChannel(Channel channel){
+        this.clientChannel = channel;
+    }
+    public void send(Object msg){
+        send(msg, false);
+    }
+    public void send(Object msg, boolean flush){
+        if(flush)
+            clientChannel.writeAndFlush(msg);
+        else
+            clientChannel.write(msg);
+    }
+    public void disconnect(){
+        clientChannel.close();
     }
 }

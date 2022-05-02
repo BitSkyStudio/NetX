@@ -78,9 +78,6 @@ public class NetXServer extends Thread{
             bossGroup.shutdownGracefully();
         }
     }
-    public interface ChannelInit{
-        void onChannelInit(SocketChannel channel);
-    }
     void addToMessageQueue(ServerMessage msg){
         messageQueue.add(msg);
     }
