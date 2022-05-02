@@ -8,7 +8,7 @@ import io.netty.util.AttributeKey;
 public class ServerProcessor extends ChannelInboundHandlerAdapter {
     AttributeKey SOCKET_USER_ATTR = AttributeKey.valueOf("SOCKET_USER");
 
-    NetXServer server;
+    private NetXServer server;
     public ServerProcessor(NetXServer server) {
         this.server = server;
     }

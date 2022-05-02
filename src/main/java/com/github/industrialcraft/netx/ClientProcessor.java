@@ -3,10 +3,9 @@ package com.github.industrialcraft.netx;
 import com.github.industrialcraft.netx.timeout.PingMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.AttributeKey;
 
 public class ClientProcessor extends ChannelInboundHandlerAdapter {
-    NetXClient client;
+    private NetXClient client;
     public ClientProcessor(NetXClient client) {
         this.client = client;
     }

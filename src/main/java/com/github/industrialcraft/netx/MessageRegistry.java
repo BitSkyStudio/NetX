@@ -35,10 +35,10 @@ public class MessageRegistry {
     }
 
     public static class MessageDescriptor{
-        int id;
-        Class clazz;
-        MessageReader reader;
-        MessageWriter writer;
+        private int id;
+        public final Class clazz;
+        public final MessageReader reader;
+        public final MessageWriter writer;
         public MessageDescriptor(Class clazz, MessageReader reader, MessageWriter writer) {
             this.clazz = clazz;
             this.reader = reader;
@@ -46,6 +46,9 @@ public class MessageRegistry {
         }
         private void setId(int id) {
             this.id = id;
+        }
+        public int getId() {
+            return id;
         }
     }
     public interface MessageReader {

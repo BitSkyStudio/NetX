@@ -76,7 +76,7 @@ public abstract class ClientMessage {
         default void message(NetXClient user, Object msg){}
         default void exception(NetXClient user, Throwable exception){
             exception.printStackTrace();
-            user.clientChannel.disconnect();
+            user.disconnect();
         }
     }
 }

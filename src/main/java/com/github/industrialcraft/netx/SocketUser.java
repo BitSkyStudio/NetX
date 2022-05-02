@@ -3,8 +3,8 @@ package com.github.industrialcraft.netx;
 import io.netty.channel.Channel;
 
 public class SocketUser {
-    Object userData;
-    Channel channel;
+    private Object userData;
+    private final Channel channel;
     public SocketUser(Channel channel) {
         this.userData = null;
         this.channel = channel;
@@ -16,7 +16,7 @@ public class SocketUser {
         this.userData = userData;
     }
     public void send(Object msg){
-        send(msg, false);
+        send(msg, true);
     }
     public void send(Object msg, boolean flush){
         if(flush)

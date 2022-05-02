@@ -10,7 +10,7 @@ public class TimeOutHandler extends ChannelDuplexHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if(evt instanceof IdleStateEvent event){
             if(event.state() == IdleState.READER_IDLE){
-                ctx.fireExceptionCaught(new RuntimeException("reader idle"));
+                ctx.fireExceptionCaught(new TimeoutException("reader idle"));
             } else if(event.state() == IdleState.WRITER_IDLE){
                 ctx.writeAndFlush(new PingMessage());
             }

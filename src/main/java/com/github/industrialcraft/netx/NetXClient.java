@@ -1,6 +1,5 @@
 package com.github.industrialcraft.netx;
 
-import com.github.industrialcraft.netx.timeout.PingMessageEncoder;
 import com.github.industrialcraft.netx.timeout.TimeOutHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -14,14 +13,14 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NetXClient extends Thread{
-    String host;
-    int port;
-    int readTimeout;
-    int writeTimeout;
-    int maxLength;
-    MessageRegistry registry;
-    Channel clientChannel;
-    ConcurrentLinkedQueue<ClientMessage> messageQueue;
+    private final String host;
+    private final int port;
+    private int readTimeout;
+    private int writeTimeout;
+    private int maxLength;
+    private final MessageRegistry registry;
+    private Channel clientChannel;
+    private final ConcurrentLinkedQueue<ClientMessage> messageQueue;
     public NetXClient(String host, int port, MessageRegistry registry) {
         this.host = host;
         this.port = port;
@@ -54,7 +53,6 @@ public class NetXClient extends Thread{
                     ch.pipeline().addLast(new LengthFieldPrepender(4));
                     ch.pipeline().addLast(new MessageDecoder(registry));
                     ch.pipeline().addLast(new IdleStateHandler(readTimeout, writeTimeout, 0));
-                    ch.pipeline().addLast(new PingMessageEncoder());
                     ch.pipeline().addLast(new TimeOutHandler());
                     ch.pipeline().addLast(new MessageEncoder(registry));
                     ch.pipeline().addLast(new ClientProcessor(client));
@@ -86,8 +84,12 @@ public class NetXClient extends Thread{
     void setClientChannel(Channel channel){
         this.clientChannel = channel;
     }
+    public Channel getClientChannel() {
+        return clientChannel;
+    }
+
     public void send(Object msg){
-        send(msg, false);
+        send(msg, true);
     }
     public void send(Object msg, boolean flush){
         if(flush)

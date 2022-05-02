@@ -1,6 +1,5 @@
 package com.github.industrialcraft.netx;
 
-import com.github.industrialcraft.netx.timeout.PingMessageEncoder;
 import com.github.industrialcraft.netx.timeout.TimeOutHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -15,19 +14,18 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 public class NetXServer extends Thread{
-    int port;
-    int readTimeout;
-    int writeTimeout;
-    int maxLength;
-    MessageRegistry registry;
-    ConcurrentLinkedQueue<ServerMessage> messageQueue;
-    ArrayList<SocketUser> users;
+    private final int port;
+    private int readTimeout;
+    private int writeTimeout;
+    private int maxLength;
+    private final MessageRegistry registry;
+    private final ConcurrentLinkedQueue<ServerMessage> messageQueue;
+    final ArrayList<SocketUser> users;
     public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
         this.readTimeout = 30;
@@ -62,7 +60,6 @@ public class NetXServer extends Thread{
                             ch.pipeline().addLast(new LengthFieldPrepender(4));
                             ch.pipeline().addLast(new MessageDecoder(registry));
                             ch.pipeline().addLast(new IdleStateHandler(readTimeout, writeTimeout, 0));
-                            ch.pipeline().addLast(new PingMessageEncoder());
                             ch.pipeline().addLast(new TimeOutHandler());
                             ch.pipeline().addLast(new MessageEncoder(registry));
                             ch.pipeline().addLast(new ServerProcessor(server));
