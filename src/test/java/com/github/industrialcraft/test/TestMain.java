@@ -1,9 +1,6 @@
 package com.github.industrialcraft.test;
 
-import com.github.industrialcraft.netx.MessageRegistry;
-import com.github.industrialcraft.netx.NetXClient;
-import com.github.industrialcraft.netx.NetXServer;
-import com.github.industrialcraft.netx.ServerMessage;
+import com.github.industrialcraft.netx.*;
 import com.github.industrialcraft.test.proto.TeleportEntity;
 
 public class TestMain {
@@ -14,14 +11,15 @@ public class TestMain {
         server.start();
         NetXClient client = new NetXClient("localhost", 1234, registry, channel -> channel.pipeline().addLast(new TestClientProcessor()));
         client.start();
-        while (true){
-            ServerMessage message = server.getQueue().poll();
-            if(message != null){
-                if(message instanceof ServerMessage.IncomingMessage incoming){
-                    System.out.println(incoming.getMessage());
-                } else
-                    System.out.println(message);
+
+        ServerMessage.Visitor visitor = new ServerMessage.Visitor() {
+            @Override
+            public void message(SocketUser user, Object msg) {
+                System.out.println(msg);
             }
+        };
+        while (true){
+            server.visitMessage(visitor);
         }
     }
 }

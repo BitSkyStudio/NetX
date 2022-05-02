@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 public class NetXServer extends Thread{
     int port;
@@ -33,6 +34,7 @@ public class NetXServer extends Thread{
         this.writeTimeout = 5;
         this.maxLength = Integer.MAX_VALUE;
         this.registry = registry;
+        this.users = new ArrayList<>();
         this.messageQueue = new ConcurrentLinkedQueue<>();
     }
     public void setTimout(int readTimeout, int writeTimeout){
@@ -79,10 +81,18 @@ public class NetXServer extends Thread{
     public interface ChannelInit{
         void onChannelInit(SocketChannel channel);
     }
-    public ConcurrentLinkedQueue<ServerMessage> getQueue() {
-        return messageQueue;
+    void addToMessageQueue(ServerMessage msg){
+        messageQueue.add(msg);
+    }
+    public ServerMessage pollMessage(){
+        return messageQueue.poll();
+    }
+    public void visitMessage(ServerMessage.Visitor visitor){
+        ServerMessage message = pollMessage();
+        if(message != null)
+            message.visit(visitor);
     }
     public List<SocketUser> getUsers() {
-        return Collections.unmodifiableList(users);
+        return users.stream().collect(Collectors.toList());
     }
 }

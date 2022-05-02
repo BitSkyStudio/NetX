@@ -18,23 +18,23 @@ public class ServerProcessor extends ChannelInboundHandlerAdapter {
         SocketUser user = new SocketUser(ctx.channel());
         server.users.add(user);
         ctx.channel().attr(SOCKET_USER_ATTR).set(user);
-        server.getQueue().add(new ServerMessage.Connect(user));
+        server.addToMessageQueue(new ServerMessage.Connect(user));
     }
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketUser user = (SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get();
         server.users.remove(user);
-        server.getQueue().add(new ServerMessage.Disconnect(user));
+        server.addToMessageQueue(new ServerMessage.Disconnect(user));
         ctx.channel().attr(SOCKET_USER_ATTR).set(null);
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof PingMessage)
             return;
-        server.getQueue().add(new ServerMessage.IncomingMessage((SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get(), msg));
+        server.addToMessageQueue(new ServerMessage.IncomingMessage((SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get(), msg));
     }
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        server.getQueue().add(new ServerMessage.Exception((SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get(), cause));
+        server.addToMessageQueue(new ServerMessage.Exception((SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get(), cause));
     }
 }

@@ -1,6 +1,8 @@
 package com.github.industrialcraft.netx;
 
 public abstract class ServerMessage {
+    public abstract void visit(Visitor visitor);
+
     public static class Connect extends ServerMessage {
         private SocketUser user;
         public Connect(SocketUser user) {
@@ -8,6 +10,11 @@ public abstract class ServerMessage {
         }
         public SocketUser getUser() {
             return user;
+        }
+
+        @Override
+        public void visit(Visitor visitor) {
+            visitor.connect(user);
         }
     }
     public static class Disconnect extends ServerMessage {
@@ -17,6 +24,11 @@ public abstract class ServerMessage {
         }
         public SocketUser getUser() {
             return user;
+        }
+
+        @Override
+        public void visit(Visitor visitor) {
+            visitor.disconnect(user);
         }
     }
     public static class IncomingMessage extends ServerMessage {
@@ -32,6 +44,11 @@ public abstract class ServerMessage {
         public Object getMessage() {
             return msg;
         }
+
+        @Override
+        public void visit(Visitor visitor) {
+            visitor.message(user, msg);
+        }
     }
     public static class Exception extends ServerMessage {
         private SocketUser user;
@@ -45,6 +62,21 @@ public abstract class ServerMessage {
         }
         public Throwable getException() {
             return exception;
+        }
+
+        @Override
+        public void visit(Visitor visitor) {
+            visitor.exception(user, exception);
+        }
+    }
+
+    public interface Visitor{
+        default void connect(SocketUser user){}
+        default void disconnect(SocketUser user){}
+        default void message(SocketUser user, Object msg){}
+        default void exception(SocketUser user, Throwable exception){
+            exception.printStackTrace();
+            user.disconnect();
         }
     }
 }
