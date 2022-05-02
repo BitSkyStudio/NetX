@@ -14,20 +14,22 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class NetXServer extends Thread{
     int port;
     int readTimeout;
     int writeTimeout;
     int maxLength;
     MessageRegistry registry;
-    ChannelInit channelInit;
-    public NetXServer(int port, MessageRegistry registry, ChannelInit init) {
+    ConcurrentLinkedQueue<ServerMessage> messageQueue;
+    public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
         this.readTimeout = 30;
         this.writeTimeout = 5;
         this.maxLength = Integer.MAX_VALUE;
         this.registry = registry;
-        this.channelInit = init;
+        this.messageQueue = new ConcurrentLinkedQueue<>();
     }
     public void setTimout(int readTimeout, int writeTimeout){
         this.readTimeout = readTimeout;
@@ -38,6 +40,8 @@ public class NetXServer extends Thread{
     }
     @Override
     public void run() {
+        NetXServer server = this;
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -55,8 +59,7 @@ public class NetXServer extends Thread{
                             ch.pipeline().addLast(new PingMessageEncoder());
                             ch.pipeline().addLast(new TimeOutHandler());
                             ch.pipeline().addLast(new MessageEncoder(registry));
-                            if(channelInit != null)
-                                channelInit.onChannelInit(ch);
+                            ch.pipeline().addLast(new ServerProcessor(server));
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128);
 
@@ -71,5 +74,8 @@ public class NetXServer extends Thread{
     }
     public interface ChannelInit{
         void onChannelInit(SocketChannel channel);
+    }
+    public ConcurrentLinkedQueue<ServerMessage> getQueue() {
+        return messageQueue;
     }
 }

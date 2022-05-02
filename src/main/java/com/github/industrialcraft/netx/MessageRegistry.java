@@ -2,6 +2,7 @@ package com.github.industrialcraft.netx;
 
 import com.google.protobuf.GeneratedMessageV3;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -20,27 +21,37 @@ public class MessageRegistry {
         if(messages.containsKey(id))
             throw new RuntimeException("id " + id + " already registered");
         messages.put(id, descriptor);
+        descriptor.setId(id);
     }
     public MessageDescriptor byID(int id){
         return messages.get(id);
     }
-    public int toID(Class clazz){
+    public MessageDescriptor byClass(Class clazz){
         for(Map.Entry<Integer,MessageDescriptor> entry : messages.entrySet()){
             if(entry.getValue().clazz == clazz)
-                return entry.getKey();
+                return entry.getValue();
         }
-        return -1;
+        return null;
     }
 
     public static class MessageDescriptor{
+        int id;
         Class clazz;
-        MessageParser parser;
-        public MessageDescriptor(Class clazz, MessageParser parser) {
+        MessageReader reader;
+        MessageWriter writer;
+        public MessageDescriptor(Class clazz, MessageReader reader, MessageWriter writer) {
             this.clazz = clazz;
-            this.parser = parser;
+            this.reader = reader;
+            this.writer = writer;
+        }
+        private void setId(int id) {
+            this.id = id;
         }
     }
-    public interface MessageParser {
-        GeneratedMessageV3 read(ByteBufInputStream stream) throws IOException;
+    public interface MessageReader {
+        Object read(ByteBufInputStream stream) throws IOException;
+    }
+    public interface MessageWriter {
+        void write(Object obj, ByteBufOutputStream stream) throws IOException;
     }
 }
