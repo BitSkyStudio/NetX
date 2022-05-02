@@ -14,6 +14,9 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NetXServer extends Thread{
@@ -23,6 +26,7 @@ public class NetXServer extends Thread{
     int maxLength;
     MessageRegistry registry;
     ConcurrentLinkedQueue<ServerMessage> messageQueue;
+    ArrayList<SocketUser> users;
     public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
         this.readTimeout = 30;
@@ -77,5 +81,8 @@ public class NetXServer extends Thread{
     }
     public ConcurrentLinkedQueue<ServerMessage> getQueue() {
         return messageQueue;
+    }
+    public List<SocketUser> getUsers() {
+        return Collections.unmodifiableList(users);
     }
 }

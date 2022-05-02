@@ -16,12 +16,15 @@ public class ServerProcessor extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         SocketUser user = new SocketUser(ctx.channel());
+        server.users.add(user);
         ctx.channel().attr(SOCKET_USER_ATTR).set(user);
         server.getQueue().add(new ServerMessage.Connect(user));
     }
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        server.getQueue().add(new ServerMessage.Disconnect((SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get()));
+        SocketUser user = (SocketUser) ctx.channel().attr(SOCKET_USER_ATTR).get();
+        server.users.remove(user);
+        server.getQueue().add(new ServerMessage.Disconnect(user));
         ctx.channel().attr(SOCKET_USER_ATTR).set(null);
     }
     @Override
