@@ -76,10 +76,11 @@ public class NetXClient extends Thread{
     public ClientMessage pollMessage(){
         return messageQueue.poll();
     }
-    public void visitMessage(ClientMessage.Visitor visitor){
+    public boolean visitMessage(ClientMessage.Visitor visitor){
         ClientMessage message = pollMessage();
         if(message != null)
             message.visit(visitor);
+        return message != null;
     }
     void setClientChannel(Channel channel){
         this.clientChannel = channel;

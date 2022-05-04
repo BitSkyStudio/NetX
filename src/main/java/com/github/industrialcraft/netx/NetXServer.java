@@ -81,10 +81,11 @@ public class NetXServer extends Thread{
     public ServerMessage pollMessage(){
         return messageQueue.poll();
     }
-    public void visitMessage(ServerMessage.Visitor visitor){
+    public boolean visitMessage(ServerMessage.Visitor visitor){
         ServerMessage message = pollMessage();
         if(message != null)
             message.visit(visitor);
+        return message != null;
     }
     public List<SocketUser> getUsers() {
         return users.stream().collect(Collectors.toList());
