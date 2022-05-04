@@ -59,9 +59,9 @@ public class NetXServer extends Thread{
                             ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(maxLength, 0, 4, 0, 4));
                             ch.pipeline().addLast(new LengthFieldPrepender(4));
                             ch.pipeline().addLast(new MessageDecoder(registry));
+                            ch.pipeline().addLast(new MessageEncoder(registry));
                             ch.pipeline().addLast(new IdleStateHandler(readTimeout, writeTimeout, 0));
                             ch.pipeline().addLast(new TimeOutHandler());
-                            ch.pipeline().addLast(new MessageEncoder(registry));
                             ch.pipeline().addLast(new ServerProcessor(server));
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128);
