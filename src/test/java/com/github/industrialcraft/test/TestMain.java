@@ -3,9 +3,16 @@ package com.github.industrialcraft.test;
 import com.github.industrialcraft.netx.*;
 import com.github.industrialcraft.test.proto.TeleportEntity;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class TestMain {
-    public static void main(String args[]){
-        MessageRegistry registry = new MessageRegistry();
+    public static void main(String args[]) throws IOException {
+        //LANBroadcaster.broadcast("dobre", InetAddress.getByName("229.15.78.55"), 2315);
+        LanReceiver receiver = new LanReceiver(InetAddress.getByName("229.15.78.55"), 2315, lanMessage -> System.out.println(lanMessage.getAddress() + ":" + lanMessage.getContent()));
+        receiver.run();
+        /*MessageRegistry registry = new MessageRegistry();
         registry.register(1, new MessageRegistry.MessageDescriptor(TeleportEntity.TeleportEntityMessage.class, stream -> TeleportEntity.TeleportEntityMessage.parseFrom(stream), (obj, stream) -> ((TeleportEntity.TeleportEntityMessage)obj).writeTo(stream)));
         NetXServer server = new NetXServer(1234, registry);
         server.start();
@@ -44,6 +51,6 @@ public class TestMain {
         while (true){
             server.visitMessage(serverVisitor);
             client.visitMessage(clientVisitor);
-        }
+        }*/
     }
 }
