@@ -24,6 +24,10 @@ public class MessageEncoder extends MessageToByteEncoder<Object> {
             ctx.fireExceptionCaught(new RuntimeException("attempting to serialize message with no assigned id"));
             return;
         }
+        if(md.writer == null){
+            ctx.fireExceptionCaught(new RuntimeException("trying to send packet without writer implemented, class: " + msg.getClass().getSimpleName()));
+            return;
+        }
         out.writeInt(md.getId());
         md.writer.write(msg, new ByteBufOutputStream(out));
     }

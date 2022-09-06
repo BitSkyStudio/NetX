@@ -11,9 +11,9 @@ public class TestMain {
     public static void main(String args[]) throws IOException {
         //LANBroadcaster.broadcast("dobre", InetAddress.getByName("229.15.78.55"), 2315);
         LanReceiver receiver = new LanReceiver(InetAddress.getByName("229.15.78.55"), 2315, lanMessage -> System.out.println(lanMessage.getAddress() + ":" + lanMessage.getContent()));
-        receiver.run();
-        /*MessageRegistry registry = new MessageRegistry();
-        registry.register(1, new MessageRegistry.MessageDescriptor(TeleportEntity.TeleportEntityMessage.class, stream -> TeleportEntity.TeleportEntityMessage.parseFrom(stream), (obj, stream) -> ((TeleportEntity.TeleportEntityMessage)obj).writeTo(stream)));
+        //receiver.run();
+        MessageRegistry registry = new MessageRegistry();
+        registry.register(1, new MessageRegistry.MessageDescriptor<>(TeleportEntity.TeleportEntityMessage.class, stream -> TeleportEntity.TeleportEntityMessage.parseFrom(stream), (obj, stream) -> obj.writeTo(stream)));
         NetXServer server = new NetXServer(1234, registry);
         server.start();
         NetXClient client = new NetXClient("localhost", 1234, registry);
@@ -51,6 +51,6 @@ public class TestMain {
         while (true){
             server.visitMessage(serverVisitor);
             client.visitMessage(clientVisitor);
-        }*/
+        }
     }
 }

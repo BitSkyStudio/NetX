@@ -26,6 +26,10 @@ public class MessageDecoder extends ByteToMessageDecoder {
             ctx.fireExceptionCaught(new RuntimeException("unknown packet id: " + id));
             return;
         }
+        if(descriptor.reader == null){
+            ctx.fireExceptionCaught(new RuntimeException("received packet without reader implemented, id: " + id));
+            return;
+        }
         out.add(descriptor.reader.read(new ByteBufInputStream(in)));
     }
 }
