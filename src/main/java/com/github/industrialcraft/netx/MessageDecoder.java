@@ -16,7 +16,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if(in.readableBytes() < 0)
+        if(in.readableBytes() <= 0)
             return;
         int id = in.readInt();
         if(id == 0) {
