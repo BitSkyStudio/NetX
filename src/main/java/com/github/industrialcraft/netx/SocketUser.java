@@ -9,8 +9,8 @@ public class SocketUser {
         this.userData = null;
         this.channel = channel;
     }
-    public Object getUserData() {
-        return userData;
+    public <T> T getUserData() {
+        return (T) userData;
     }
     public void setUserData(Object userData) {
         this.userData = userData;

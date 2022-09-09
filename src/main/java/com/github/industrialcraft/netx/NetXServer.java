@@ -16,6 +16,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class NetXServer extends Thread{
@@ -87,6 +88,24 @@ public class NetXServer extends Thread{
             message.visit(visitor);
         return message != null;
     }
+    public void broadcast(Object message, boolean flush){
+        for(SocketUser user : this.users){
+            user.send(message, flush);
+        }
+    }
+    public void broadcast(Object message, Predicate<SocketUser> test, boolean flush){
+        for(SocketUser user : this.users){
+            if(test.test(user))
+                user.send(message, flush);
+        }
+    }
+    public void broadcastExcept(Object message, SocketUser except, boolean flush){
+        for(SocketUser user : this.users){
+            if(user != except)
+                user.send(message, flush);
+        }
+    }
+
     public List<SocketUser> getUsers() {
         return users.stream().collect(Collectors.toList());
     }
