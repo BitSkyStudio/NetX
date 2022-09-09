@@ -76,7 +76,8 @@ public abstract class ServerMessage {
         default void message(SocketUser user, Object msg){}
         default void exception(SocketUser user, Throwable exception){
             exception.printStackTrace();
-            user.disconnect();
+            if(user != null)
+                user.disconnect();
         }
     }
 }

@@ -16,8 +16,10 @@ public class MessageDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        if(in.readableBytes() < 0)
+            return;
         int id = in.readInt();
-        if(id == 0) { //ping
+        if(id == 0) {
             out.add(new PingMessage());
             return;
         }
