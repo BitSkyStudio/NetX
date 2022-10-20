@@ -21,7 +21,7 @@ public class MessageEncoder extends MessageToByteEncoder<Object> {
         }
         MessageRegistry.MessageDescriptor md = registry.byClass(msg.getClass());
         if(md == null){
-            ctx.fireExceptionCaught(new RuntimeException("attempting to serialize message with no assigned id"));
+            ctx.fireExceptionCaught(new RuntimeException("attempting to serialize message with no assigned id, class: " + msg.getClass().getSimpleName()));
             return;
         }
         if(md.writer == null){
