@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.io.DataInputStream;
 import java.util.List;
 
 public class MessageDecoder extends ByteToMessageDecoder {
@@ -32,6 +33,6 @@ public class MessageDecoder extends ByteToMessageDecoder {
             ctx.fireExceptionCaught(new RuntimeException("received packet without reader implemented, id: " + id));
             return;
         }
-        out.add(descriptor.reader.read(new ByteBufInputStream(in)));
+        out.add(descriptor.reader.read(new DataInputStream(new ByteBufInputStream(in))));
     }
 }

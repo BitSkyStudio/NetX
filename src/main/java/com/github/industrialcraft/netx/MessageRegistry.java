@@ -4,6 +4,8 @@ import com.google.protobuf.GeneratedMessageV3;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.util.HashMap;
@@ -53,9 +55,9 @@ public class MessageRegistry {
         }
     }
     public interface MessageReader<T> {
-        T read(ByteBufInputStream stream) throws IOException;
+        T read(DataInputStream stream) throws IOException;
     }
     public interface MessageWriter<T> {
-        void write(T obj, ByteBufOutputStream stream) throws IOException;
+        void write(T obj, DataOutputStream stream) throws IOException;
     }
 }

@@ -7,6 +7,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
+import java.io.DataOutputStream;
+
 public class MessageEncoder extends MessageToByteEncoder<Object> {
     private MessageRegistry registry;
     public MessageEncoder(MessageRegistry registry) {
@@ -29,6 +31,6 @@ public class MessageEncoder extends MessageToByteEncoder<Object> {
             return;
         }
         out.writeInt(md.getId());
-        md.writer.write(msg, new ByteBufOutputStream(out));
+        md.writer.write(msg, new DataOutputStream(new ByteBufOutputStream(out)));
     }
 }
