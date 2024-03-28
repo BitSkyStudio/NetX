@@ -27,7 +27,7 @@ public class NetXServer extends Thread{
     private int maxLength;
     private final MessageRegistry registry;
     private final ConcurrentLinkedQueue<ServerMessage> messageQueue;
-    private final ArrayList<SocketUser> users;
+    final ArrayList<SocketUser> users;
     private InetSocketAddress address;
     public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
