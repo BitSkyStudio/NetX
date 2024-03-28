@@ -29,6 +29,7 @@ public class NetXServer extends Thread{
     private final ConcurrentLinkedQueue<ServerMessage> messageQueue;
     final ArrayList<SocketUser> users;
     private InetSocketAddress address;
+    private ChannelFuture channel;
     public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
         this.readTimeout = 30;
@@ -70,6 +71,7 @@ public class NetXServer extends Thread{
                     }).option(ChannelOption.SO_BACKLOG, 128);
 
             ChannelFuture f = b.bind(port).sync();
+            channel = f;
             address = ((InetSocketAddress)f.channel().localAddress());
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -114,5 +116,9 @@ public class NetXServer extends Thread{
 
     public List<SocketUser> getUsers() {
         return new ArrayList<>(users);
+    }
+
+    public void close(){
+        channel.channel().close();
     }
 }
