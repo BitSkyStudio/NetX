@@ -13,6 +13,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,7 +27,8 @@ public class NetXServer extends Thread{
     private int maxLength;
     private final MessageRegistry registry;
     private final ConcurrentLinkedQueue<ServerMessage> messageQueue;
-    final ArrayList<SocketUser> users;
+    private final ArrayList<SocketUser> users;
+    private InetSocketAddress address;
     public NetXServer(int port, MessageRegistry registry) {
         this.port = port;
         this.readTimeout = 30;
@@ -68,6 +70,7 @@ public class NetXServer extends Thread{
                     }).option(ChannelOption.SO_BACKLOG, 128);
 
             ChannelFuture f = b.bind(port).sync();
+            address = ((InetSocketAddress)f.channel().localAddress());
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -75,6 +78,9 @@ public class NetXServer extends Thread{
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+    }
+    public InetSocketAddress getAddress() {
+        return address;
     }
     void addToMessageQueue(ServerMessage msg){
         messageQueue.add(msg);
@@ -107,6 +113,6 @@ public class NetXServer extends Thread{
     }
 
     public List<SocketUser> getUsers() {
-        return users.stream().collect(Collectors.toList());
+        return new ArrayList<>(users);
     }
 }
